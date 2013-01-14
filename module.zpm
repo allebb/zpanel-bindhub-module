@@ -1,0 +1,43 @@
+<@ CheckSettings @>
+<script type="text/JavaScript">
+    $(document).ready(function() {
+        $("#control select").load("modules/bindhub_autoupdater/code/records_ajax.php", function() {
+            $("#progress").hide();
+            $("#inRecord").show();
+        });
+    }); 
+</script>
+<div class="zmodule_header" id="zmodule_header_<@ ModuleName @>"><img src="<@ ModuleIcon @>" border="0"><@ ModuleName @></div>
+<div class="zmodule_content" id="zmodule_header_<@ ModuleName @>">
+
+    <div class="zmodule_desc" id="zmodule_desc_<@ ModuleName @>"><p><a href="http://www.bindhub.com/" target="_blank">BindHub.com</a> provides a free Elastic (or otherwise known as 'Dynamic') DNS services, simply <a href="https://www.bindhub.com/register" target="_blank">register</a> a free account, create a free sub-domain eg. <em>yourname.zphub.com</em> or <em>yourname.autono.de</em> and then configure this module below, ZPanel will then automatically monitor for changes to your public IP address and when changes occur will send a secure (HTTPS) request to the BindHub API and will automatically update your IP address enabling you to host websites from a dynamic IP address eg. an elastic VPS node or home internet connection.</p></div>
+    <@ Result @>
+
+    <div class="zform_wrapper">
+        <h2><: Your API key details :></h2>
+        <p><: Your server needs to supply a valid <a href="http://www.bindhub.com/" target="_blank">BindHub.com</a> user and API key :></p> 
+        <form action="./?module=bindhub_autoupdater&action=UpdateCredentials" method="post" name="frmBindHub" id="frmBindHub">
+            <table class="zform">
+                <tr><th>Username: </th><td><input type="text" name="inUser" id="inUser" size="30" value="<@ CurrentUser @>" /></td></tr>
+                <tr><th>API Key: </th><td><input type="text" name="inKey" id="inKey" size="50" value="<@ CurrentAPIKey @>" /></td></tr>
+                <tr><td><button class="fg-button ui-state-default ui-corner-all" type="submit" id="" name="inSave" value=""><: Save account details :></button></td></tr>
+            </table>
+        </form>
+    </div>
+
+    <div class="zform_wrapper">
+        <h2><: Domain record :></h2>
+        <p><: Choose the record you would like to point to this server and for ZPanel to keep updated. :></p>
+        <form action="./?module=bindhub_autoupdater&action=UpdateRecord" method="post" name="frmBindHubRecords" id="frmBindHubRecords">
+            <table>
+                <tr><th>Record to keep 'in-sync': </th><td>
+                        <div id="control">
+                            <img id="progress" src="modules/bindhub_autoupdater/assets/ajax-loader.gif" alt="Loading..." /> 
+                            <select id="inRecord" style="display:none" name="inRecord"></select>
+                        </div>
+                    </td></tr>
+                <tr><td><button class="fg-button ui-state-default ui-corner-all" type="submit" id="" name="inSave" value=""><: Save changes :></button></td></tr>
+            </table>
+        </form>
+    </div>
+</div>
