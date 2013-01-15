@@ -50,6 +50,44 @@ class module_controller {
         }
     }
 
+    private static function SaveRecordsToDB($values) {
+        $records = json_encode($values);
+        return ctrl_options::SetSystemOption('bhub_record', $records);
+    }
+
+    private static function RetrieveRecordsToDB() {
+        $records = ctrl_options::GetSystemOption('bhub_record');
+        return json_decode($records, true);
+    }
+
+    public static function getRecordListing() {
+
+        require('lib/bindhubclient.class.php');
+
+        $retval = null;
+        $bindhub_client = new BindHubClient(array(
+                    'user' => ctrl_options::GetSystemOption('bhub_user'),
+                    'key' => ctrl_options::GetSystemOption('bhub_key'),
+                ));
+        $bindhub_client->get_all_records();
+        $selected_records = self::RetrieveRecordsToDB();
+        if (!isset($bindhub_client->response_as_object()->records->entities)) {
+            $retval .= $bindhub_client->response_as_object()->error;
+        } else {
+            $retval .= "<table>\r";
+            foreach ($bindhub_client->response_as_object()->records->entities as $record) {
+                if (!in_array($record->record, $selected_records)) {
+                    $retval .= "<tr><td><input type=\"checkbox\" name=\"check_" . $record->id . "\" value=\"1\"></td><td>" . $record->record . "</td></tr>\r";
+                } else {
+                    $retval .= "<tr><td><input type = \"checkbox\" name=\"check_" . $record->id . "\" value=\"1\" checked=\"checked\"></td><td> " . $record->record . "</td></tr>\r";
+                }
+            }
+            $retval .= "<tr><td><button class=\"fg-button ui-state-default ui-corner-all\" type=\"submit\" id=\"\" name=\"inSave\" value=\"\">Save changes</button></td></tr>\r";
+            $retval .= "</table>\r";
+        }
+        return $retval;
+    }
+
     public static function getWebIP() {
         return self::API_CheckCurrentPublicAddress();
     }
@@ -74,7 +112,22 @@ class module_controller {
     }
 
     public static function doUpdateRecord() {
-        ctrl_options::SetSystemOption('bhub_record', $_POST['inRecord']);
+        require('lib/bindhubclient.class.php');
+        $bindhub_client = new BindHubClient(array(
+                    'user' => ctrl_options::GetSystemOption('bhub_user'),
+                    'key' => ctrl_options::GetSystemOption('bhub_key'),
+                ));
+        $bindhub_client->get_all_records();
+        $selected = array();
+
+        if (isset($bindhub_client->response_as_object()->records->entities)) {
+            foreach ($bindhub_client->response_as_object()->records->entities as $record) {
+                if (isset($_POST['check_' . $record->id]) and $_POST['check_' . $record->id] == '1') {
+                    array_push($selected, $record->record);
+                }
+            }
+        }
+        self::SaveRecordsToDB($selected);
         header("location: ./?module=bindhub_autoupdater");
         exit;
     }
