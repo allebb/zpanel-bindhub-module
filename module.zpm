@@ -1,12 +1,4 @@
 <@ CheckSettings @>
-<script type="text/JavaScript">
-    $(document).ready(function() {
-        $("#control select").load("modules/bindhub_autoupdater/code/records_ajax.php", function() {
-            $("#progress").hide();
-            $("#inRecord").show();
-        });
-    }); 
-</script>
 <div class="zmodule_header" id="zmodule_header_<@ ModuleName @>"><img src="<@ ModuleIcon @>" border="0"><@ ModuleName @></div>
 <div class="zmodule_content" id="zmodule_header_<@ ModuleName @>">
 
