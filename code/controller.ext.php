@@ -4,20 +4,24 @@
  * BindHub.com Elastic DNS updater module.
  * Developed by Bobby Allen (bobbyallen.uk@gmail.com) 
  */
+require_once('lib/bindhubclient.class.php');
+
 class module_controller {
 
-    private static $result;
+    private static $result = null;
 
     /**
      * BINDHUB MODULE METHODS.
      */
     static public function getResult() {
-        return self::$result;
+        if (self::$result = 'foreced') {
+            return ui_sysmessage::shout(ui_language::translate("All records DNS IP addresses have been successfully updated."), "zannounceok");
+        }
     }
 
     // Return the current public IP address of the server.
     static private function API_CheckCurrentPublicAddress() {
-        require_once 'modules/bindhub_autoupdater/code/lib/bindhubclient.class.php';
+        #require_once 'modules/bindhub_autoupdater/code/lib/bindhubclient.class.php';
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
                     'key' => ctrl_options::GetSystemOption('bhub_key'),
@@ -61,9 +65,7 @@ class module_controller {
     }
 
     public static function getRecordListing() {
-
-        require('lib/bindhubclient.class.php');
-
+        #require_once('lib/bindhubclient.class.php');
         $retval = null;
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
@@ -86,6 +88,27 @@ class module_controller {
             $retval .= "</table>\r";
         }
         return $retval;
+    }
+
+    private static function ForceDNSUpdate() {
+        $bindhub_client = new BindHubClient(array(
+                    'user' => ctrl_options::GetSystemOption('bhub_user'),
+                    'key' => ctrl_options::GetSystemOption('bhub_key'),
+                ));
+        $bindhub_updater = new BindHubClient(array(
+                    'user' => ctrl_options::GetSystemOption('bhub_user'),
+                    'key' => ctrl_options::GetSystemOption('bhub_key'),
+                ));
+        $public_ip_address = $bindhub_client->get_public_ip_address();
+        $saved_records = json_decode(ctrl_options::GetSystemOption('bhub_record'), false);
+        foreach ($saved_records as $record) {
+            $bindhub_updater->update_ip_address($record, $public_ip_address);
+        }
+    }
+
+    public static function doForceRecordsUpdate() {
+        self::ForceDNSUpdate();
+        return self::$result = 'forced';
     }
 
     public static function getWebIP() {

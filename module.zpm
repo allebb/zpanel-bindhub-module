@@ -24,4 +24,12 @@
             <@ RecordListing @>      
         </form>
     </div>
+    
+    <div class="zform_wrapper">
+        <h2><: Force record updates :></h2>
+        <p><: In the event that you wish to 'force' an update of all the selected records above, you can click the button below to perform an instant update. :></p>
+        <form action="./?module=bindhub_autoupdater&action=ForceRecordsUpdate" method="post" name="frmBindHubUpdateRecords" id="frmBindHubUpdateRecords">      
+            <button class="fg-button ui-state-default ui-corner-all" type="submit" id="" name="inForceUpdate" value=""><: Force update(s) :></button>     
+        </form>
+    </div>
 </div>
