@@ -1,6 +1,5 @@
 <?php
 
-#require_once '../code/lib/bindhubclient.class.php';
 echo fs_filehandler::NewLine() . "START BindHub.com IP address updater task... " . fs_filehandler::NewLine();
 if (ctrl_options::GetSystemOption('bhub_record') == '[]') {
     echo "-- No DNS record configured, no more work to do here!" . fs_filehandler::NewLine();
@@ -15,26 +14,23 @@ if (ctrl_options::GetSystemOption('bhub_record') == '[]') {
                 'user' => ctrl_options::GetSystemOption('bhub_user'),
                 'key' => ctrl_options::GetSystemOption('bhub_key'),
             ));
-    $bindhub_client->get_all_records();
-    if (!isset($bindhub_client->response_as_object()->records->entities)) {
-        echo "-- [ERROR] -  " . $bindhub_client->response_as_object()->error . "" . fs_filehandler::NewLine();
-    } else {
-        foreach ($bindhub_client->response_as_object()->records->entities as $record) {
-            if (in_array($record->record, json_decode(ctrl_options::GetSystemOption('bhub_record'), true))) {
-                if ($record->target != $bindhub_client->get_public_ip_address()) {
-                    if ($bindhub_updater->update_ip_address($record->record, $bindhub_client->get_public_ip_address())) {
-                        echo "-- Record " . $record->record . " has been updated with your new IP address!" . fs_filehandler::NewLine();
-                    } else {
-                        echo "-- [ERROR] API reported the following error: (HTTP " . $bindhub_updater->response_code() . ")" . $bindhub_updater->api_error_message() . fs_filehandler::NewLine();
-                    }
-                    ctrl_options::SetSystemOption('bhub_lastip', $bindhub_client->get_public_ip_address());
+
+    $public_ip_address = $bindhub_client->get_public_ip_address();
+    if ($public_ip_address != ctrl_options::GetSystemOption('bhub_lastip')) {
+        $saved_records = json_decode(ctrl_options::GetSystemOption('bhub_record'), false);
+        if (count($saved_records) > 0) {
+            foreach ($saved_records as $record) {
+                if ($bindhub_updater->update_ip_address($record, $public_ip_address)) {
+                    echo "-- Record " . $record . " has been updated with your new IP address ($public_ip_address)!" . fs_filehandler::NewLine();
                 } else {
-                    echo "-- IP address for " . $record->record . " has not changed, skipping update!" . fs_filehandler::NewLine();
+                    echo "-- [ERROR] API reported the following error: (HTTP " . $bindhub_updater->response_code() . ")" . $bindhub_updater->api_error_message() . fs_filehandler::NewLine();
                 }
             }
+            ctrl_options::SetSystemOption('bhub_lastip', $public_ip_address);
         }
+    } else {
+        echo "-- Public IP address has not changed since last update, skipping updates!" . fs_filehandler::NewLine();
     }
-    #}
 }
 echo "END BindHub.com IP address updater task... " . fs_filehandler::NewLine();
 ?>

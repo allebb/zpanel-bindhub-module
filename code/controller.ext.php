@@ -14,14 +14,19 @@ class module_controller {
      * BINDHUB MODULE METHODS.
      */
     static public function getResult() {
-        if (self::$result = 'foreced') {
+        if (self::$result == 'foreced') {
             return ui_sysmessage::shout(ui_language::translate("All records DNS IP addresses have been successfully updated."), "zannounceok");
+        }
+        if (self::$result == 'recordssaved') {
+            return ui_sysmessage::shout(ui_language::translate("Successfully saved changes to your elastic records."), "zannounceok");
+        }
+        if (self::$result == 'accountsaved') {
+            return ui_sysmessage::shout(ui_language::translate("Successfully saved changes to BindHub user account details."), "zannounceok");
         }
     }
 
     // Return the current public IP address of the server.
     static private function API_CheckCurrentPublicAddress() {
-        #require_once 'modules/bindhub_autoupdater/code/lib/bindhubclient.class.php';
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
                     'key' => ctrl_options::GetSystemOption('bhub_key'),
@@ -31,7 +36,6 @@ class module_controller {
     }
 
     static private function API_UpdateIPAddress() {
-        require_once 'modules/bindhub_autoupdater/code/lib/bindhubclient.class.php';
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
                     'key' => ctrl_options::GetSystemOption('bhub_key'),
@@ -65,7 +69,6 @@ class module_controller {
     }
 
     public static function getRecordListing() {
-        #require_once('lib/bindhubclient.class.php');
         $retval = null;
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
@@ -101,8 +104,11 @@ class module_controller {
                 ));
         $public_ip_address = $bindhub_client->get_public_ip_address();
         $saved_records = json_decode(ctrl_options::GetSystemOption('bhub_record'), false);
-        foreach ($saved_records as $record) {
-            $bindhub_updater->update_ip_address($record, $public_ip_address);
+        if (count($saved_records) > 0) {
+            foreach ($saved_records as $record) {
+                $bindhub_updater->update_ip_address($record, $public_ip_address);
+            }
+            ctrl_options::SetSystemOption('bhub_lastip', $public_ip_address);
         }
     }
 
@@ -130,12 +136,10 @@ class module_controller {
     public static function doUpdateCredentials() {
         ctrl_options::SetSystemOption('bhub_user', $_POST['inUser']);
         ctrl_options::SetSystemOption('bhub_key', $_POST['inKey']);
-        header("location: ./?module=bindhub_autoupdater");
-        exit;
+        return self::$result = 'accountsaved';
     }
 
     public static function doUpdateRecord() {
-        require('lib/bindhubclient.class.php');
         $bindhub_client = new BindHubClient(array(
                     'user' => ctrl_options::GetSystemOption('bhub_user'),
                     'key' => ctrl_options::GetSystemOption('bhub_key'),
@@ -151,8 +155,8 @@ class module_controller {
             }
         }
         self::SaveRecordsToDB($selected);
-        header("location: ./?module=bindhub_autoupdater");
-        exit;
+        self::ForceDNSUpdate();
+        return self::$result = 'recordssaved';
     }
 
     public static function getCheckSettings() {
