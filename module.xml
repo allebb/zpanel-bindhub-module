@@ -8,5 +8,5 @@
 <authorname>Bobby Allen</authorname>
 <authoremail>bobbyallen.uk@gmail.com</authoremail>
 <authorurl>https://www.bindhub.com/</authorurl>
-<updateurl>http://www.zpanelcp.com/uds/core.xml</updateurl>
+<updateurl>http://repo.bindhub.com/bindhubupdater.xml</updateurl>
 </module>
