@@ -5,7 +5,7 @@ if (ctrl_options::GetSystemOption('bhub_record') == '[]') {
     echo "-- No DNS record configured, no more work to do here!" . fs_filehandler::NewLine();
 } else {
     echo "-- Connecting to Bindhub.com webservice to get current public IP..." . fs_filehandler::NewLine();
-    require_once 'modules/bindhub_autoupdater/code/lib/bindhubclient.class.php';
+    require_once 'modules/bindhubupdater/code/lib/bindhubclient.class.php';
     $bindhub_client = new BindHubClient(array(
                 'user' => ctrl_options::GetSystemOption('bhub_user'),
                 'key' => ctrl_options::GetSystemOption('bhub_key'),
