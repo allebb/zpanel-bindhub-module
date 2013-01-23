@@ -9,7 +9,7 @@ class BindHubClient {
     private $user;
     private $key;
     private $bindhubapiuri = 'https://www.bindhub.com/api/';
-    private $useragent = 'BindHub PHP API client';
+    private $useragent = 'ZPanelX AutoUpdater v1.0';
     private $ssl_verify;
     private $request_uri;
     private $request_type;
