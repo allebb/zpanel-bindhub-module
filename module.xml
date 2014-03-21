@@ -6,7 +6,7 @@
 <defaultcat>Server Admin</defaultcat>
 <desc>Host ZPanel with ease on a non-static IP address.</desc>
 <authorname>Bobby Allen</authorname>
-<authoremail>bobbyallen.uk@gmail.com</authoremail>
-<authorurl>https://www.bindhub.com/</authorurl>
+<authoremail>ballen@bobbyallen.me</authoremail>
+<authorurl>http://bobbyallen.me</authorurl>
 <updateurl>http://repo.bindhub.com/bindhubupdater.xml</updateurl>
 </module>
